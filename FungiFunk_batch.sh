@@ -9,7 +9,7 @@ script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 
 # Define the name and version of the tool
 TOOL_NAME="FungiFunk_batch"
-VERSION="0.1.8"
+VERSION="0.1.9"
 
 # Preserve the original command-line arguments exactly as supplied
 ORIGINAL_ARGS=("$@")

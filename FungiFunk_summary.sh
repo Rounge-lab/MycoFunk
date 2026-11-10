@@ -5,7 +5,7 @@ set -e
 
 # Store tool information
 TOOL_NAME="FungiFunk_summary"
-VERSION="0.1.8"
+VERSION="0.1.9"
 
 # Get the directory where this wrapper script is located
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
