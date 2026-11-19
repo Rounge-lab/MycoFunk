@@ -11,6 +11,8 @@ Its modules can be used independently or connected: a custom reference can be bu
 **Current version:** v0.2.0\
 **Status:** Active development
 
+> **Reference database availability:** The official MycoFunk reference databases are still under development and are not yet distributed with this release. For now, users must provide a compatible DIAMOND database and EggNOG annotation file explicitly using `-d` and `-e`. These files can either come from an existing compatible reference or be generated from a protein FASTA file with `MycoFunk_build.sh`. Databases generated with `MycoFunk_build.sh` must then be provided to MycoFunk using `-d` and `-e`.
+
 ## How MycoFunk fits together
 
 MycoFunk is organised as a set of connected modules covering different stages of a functional profiling workflow.
@@ -53,7 +55,7 @@ A complete multi-sample workflow can use the modules as follows:
              + interactive HTML report
 ```
 
-*An official MycoFunk reference database set is planned for distribution. Once available, users will also be able to skip the custom database-building step and use the provided reference databases directly.
+*An official MycoFunk reference database set is planned for distribution but is not yet available in the current development release. Until it is released, users must provide a compatible DIAMOND + EggNOG database pair explicitly using `-d` and `-e`. The database pair can either come from an existing compatible reference or be generated from a protein FASTA file with `MycoFunk_build.sh`. Databases generated with `MycoFunk_build.sh` must then be provided to MycoFunk using `-d` and `-e`.
 
 The modules can also be used independently. For example, `MycoFunk.sh` can analyse a single sample directly, and `MycoFunk_summary.sh` can combine outputs from independently executed MycoFunk runs without requiring `MycoFunk_batch.sh`.
 
@@ -118,7 +120,7 @@ MycoFunk runs from the command line using Bash, Python, DIAMOND, EggNOG-mapper, 
 
 All MycoFunk modules use the same Conda environment.
 
-A environment configuration file, `MycoFunk.yml`, is provided in the root directory of the repository.
+An environment configuration file, `MycoFunk.yml`, is provided in the root directory of the repository.
 
 ## 1. Get MycoFunk
 
@@ -163,9 +165,11 @@ Their paths can be provided explicitly with:
 
 MycoFunk is designed to use an official default paired database set when these options are not provided.
 
-> **Database availability:** The official MycoFunk default reference databases are planned for distribution but are not yet available as part of the current development release. Until they are provided, users should supply compatible DIAMOND and EggNOG database files explicitly, or place compatible files in the default MycoFunk database locations.
+> **Current development release:** The official MycoFunk default reference databases are still under development and are not yet distributed with this release. For now, users must provide both reference files using `-d` and `-e`.
 
-A compatible custom database pair can also be generated directly with `MycoFunk_build.sh`.
+The required database pair can either come from an existing compatible reference or be generated from a protein FASTA file with `MycoFunk_build.sh`.
+
+`MycoFunk_build.sh` generates a paired DIAMOND (`.dmnd`) database and EggNOG (`.emapper.annotations`) annotation file. These generated files are not installed automatically as the MycoFunk default databases and must therefore be provided explicitly to `MycoFunk.sh` or `MycoFunk_batch.sh` using `-d` and `-e`.
 
 ## 4. Check the installation
 
@@ -219,7 +223,11 @@ custom_database/
 
 Both files originate from the same protein FASTA and can therefore be used together by MycoFunk.
 
-If an official or previously prepared compatible MycoFunk database is already available, this step can be skipped.
+The generated `.dmnd` and `.emapper.annotations` files must then be provided to `MycoFunk.sh` or `MycoFunk_batch.sh` using `-d` and `-e`.
+
+If a compatible database pair has already been prepared, the `MycoFunk_build.sh` step can be skipped and the existing files can be supplied directly using `-d` and `-e`.
+
+Once the official MycoFunk reference databases are distributed and available in the expected default locations, this step can also be skipped. In that case, MycoFunk will use the official default databases when `-d` and `-e` are not provided.
 
 ## 2. Prepare a samplesheet
 
@@ -435,7 +443,9 @@ bash MycoFunk_batch.sh \
     -t 8
 ```
 
-Custom databases can also be supplied:
+> **Current development release:** The command above relies on the official default MycoFunk reference databases, which are still under development and are not yet distributed. Until they become available, users must provide a compatible DIAMOND database and EggNOG annotation file using `-d` and `-e`.
+
+Custom databases can be supplied as follows:
 
 ```bash
 bash MycoFunk_batch.sh \
