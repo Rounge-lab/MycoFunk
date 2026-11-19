@@ -21,7 +21,7 @@ def parse_args():
 
     # Create the argument parser
     parser = argparse.ArgumentParser(
-        description="Count input reads in paired-end FASTQ files for FungiFunk."
+        description="Count input reads in paired-end FASTQ files for MycoFunk."
     )
 
     # R1 input FASTQ file
@@ -38,7 +38,7 @@ def parse_args():
         help="Path to paired-end reads 2 FASTQ or FASTQ.GZ file.",
     )
 
-    # Sample prefix used by FungiFunk
+    # Sample prefix used by MycoFunk
     parser.add_argument(
         "--prefix",
         required=True,
@@ -126,7 +126,7 @@ def count_fastq_reads(path):
     return line_count // 4
 
 
-# Write input read counts for one FungiFunk sample
+# Write input read counts for one MycoFunk sample
 def write_input_read_counts(reads1, reads2, prefix, outdir):
     """
     Count R1 and R2 input reads and write a small TSV summary.
@@ -142,7 +142,7 @@ def write_input_read_counts(reads1, reads2, prefix, outdir):
     R1_input_reads = count_fastq_reads(reads1)
     R2_input_reads = count_fastq_reads(reads2)
 
-    # Calculate the total number of input reads used by FungiFunk
+    # Calculate the total number of input reads used by MycoFunk
     total_input_reads = R1_input_reads + R2_input_reads
 
     # Check whether the paired-end files contain the same number of reads

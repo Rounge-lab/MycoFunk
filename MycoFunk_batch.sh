@@ -8,8 +8,8 @@ set -u
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 
 # Define the name and version of the tool
-TOOL_NAME="FungiFunk_batch"
-VERSION="0.1.9"
+TOOL_NAME="MycoFunk_batch"
+VERSION="0.2.0"
 
 # Preserve the original command-line arguments exactly as supplied
 ORIGINAL_ARGS=("$@")
@@ -25,21 +25,21 @@ COMMAND_RUN="${COMMAND_RUN% }"
 
 Help() {
     echo "                                                                                  "
-    echo " _____                  _ _____            _        _           _       _         "
-    echo "|  ___|   _ _ __   __ _(_)  ___|   _ _ __ | | __   | |__   __ _| |_ ___| |__      "
-    echo "| |_ | | | |  _ \ / _  | | |_ | | | |  _ \| |/ /   | '_ \ / _  | __/ __|  _ \     "
-    echo "|  _|| |_| | | | | (_| | |  _|| |_| | | | |   <    | |_) | (_| | || (__| | | |    "
-    echo "|_|   \__,_|_| |_|\__, |_|_|   \__,_|_| |_|_|\_\___|_.__/ \__,_|\__\___|_| |_|    "
-    echo "                  |___/                                                           "
+    echo " __  __                 _____            _        _           _       _           "
+    echo "|  \/  |_   _  ___ ___ |  ___|   _ _ __ | | __   | |__   __ _| |_ ___| |__        "
+    echo "| |\/| | | | |/ __/ _ \| |_ | | | | '_ \| |/ /   | '_ \ / _  | __/ __| '_ \       "
+    echo "| |  | | |_| | (_| (_) |  _|| |_| | | | |   <    | |_) | (_| | || (__| | | |      "
+    echo "|_|  |_|\__, |\___\___/|_|   \__,_|_| |_|_|\_\___|_.__/ \__,_|\__\___|_| |_|      "
+    echo "        |___/                                                                     "
     echo "                                                                                  "
-    echo "${TOOL_NAME} v${VERSION}: batch runner for FungiFunk"
+    echo "${TOOL_NAME} v${VERSION}: batch runner for MycoFunk"
     echo ""
-    echo "Runs FungiFunk.sh sequentially on multiple paired-end samples listed in a TSV samplesheet."
+    echo "Runs MycoFunk.sh sequentially on multiple paired-end samples listed in a TSV samplesheet."
     echo ""
     echo "##########################"
     echo "         USAGE            "
     echo "##########################"
-    echo "  FungiFunk_batch.sh -s <samplesheet.tsv> -o <outdir> [optional arguments]"
+    echo "  MycoFunk_batch.sh -s <samplesheet.tsv> -o <outdir> [optional arguments]"
     echo ""
     echo "##########################"
     echo "       SAMPLE SHEET       "
@@ -62,8 +62,8 @@ Help() {
     echo "  -o, --outdir                 Output directory for the full batch"
     echo ""
     echo "Optional:"
-    echo "  --fungifunk_script              Path to FungiFunk.sh"
-    echo "                                  [default: script_dir/FungiFunk.sh]"
+    echo "  --mycofunk_script              Path to MycoFunk.sh"
+    echo "                                  [default: script_dir/MycoFunk.sh]"
     echo "  -d, --diamond_db                Path to DIAMOND (.dmnd) fungal database file"
     echo "  -e, --eggnog_db                 Path to EggNOG (.emapper.annotations) fungal database file"
     echo "  -t, --threads                   Number of threads per sample [default: 1]"
@@ -83,8 +83,8 @@ Help() {
     echo "  --query-cover <value>           Minimum query cover percentage to report an alignment in DIAMOND"
     echo "  --top <value>                   Report hits whose scores are within <value>% of the best hit for each query"
     echo "  --stop_on_error                 Stop the batch run if one sample fails"
-    echo "  --timestamps                    Add timestamps to FungiFunk progress messages"
-    echo "  --version                       Show FungiFunk_batch version"
+    echo "  --timestamps                    Add timestamps to MycoFunk progress messages"
+    echo "  --version                       Show MycoFunk_batch version"
     echo "  -h, --help                      Show this help message"
     echo ""
     echo "##########################"
@@ -100,7 +100,7 @@ Help() {
     echo "  --query-cover <value>   Minimum query cover percentage to report an alignment"
     echo "  --top <value>           Report hits whose scores are within <value>% of the best hit for each query"
     echo ""
-    echo "If these options are not provided, FungiFunk does not add them to the DIAMOND command."
+    echo "If these options are not provided, MycoFunk does not add them to the DIAMOND command."
     echo "This allows DIAMOND to use its own default behaviour for these parameters."
     echo ""
     echo "##########################"
@@ -108,9 +108,9 @@ Help() {
     echo "##########################"
     echo "For each sample:"
     echo "  Default:"
-    echo "      <outdir>/<prefix>/                                FungiFunk output directory for that sample"
-    echo "      <outdir>/<prefix>/FungiFunk_<prefix>.batch.log    Log capturing stdout and stderr from FungiFunk.sh"
-    echo "      FungiFunk_<prefix>_run_info.log                   Metadata log with version, inputs, databases, and parameters"
+    echo "      <outdir>/<prefix>/                                MycoFunk output directory for that sample"
+    echo "      <outdir>/<prefix>/MycoFunk_<prefix>.batch.log     Log capturing stdout and stderr from MycoFunk.sh"
+    echo "      MycoFunk_<prefix>_run_info.log                    Metadata log with version, inputs, databases, and parameters"
     echo "      <prefix>_annotation.tsv                           Basic annotation table with core columns:"
     echo "                                                        query_id, protein_id, diamond_evalue, bitscore,"
     echo "                                                        mate, seed_ortholog, eggNOG_OGs, Description,"
@@ -128,8 +128,8 @@ Help() {
     echo ""   
     echo ""
     echo "Batch-level files:"
-    echo "  <outdir>/FungiFunk_batch_run_info.log                 Metadata log with version, command, samplesheet, and shared parameters"                       
-    echo "  <outdir>/FungiFunk_batch_summary.tsv                  Summary table with per-sample status, exit code, and log file paths"
+    echo "  <outdir>/MycoFunk_batch_run_info.log                 Metadata log with version, command, samplesheet, and shared parameters"                       
+    echo "  <outdir>/MycoFunk_batch_summary.tsv                  Summary table with per-sample status, exit code, and log file paths"
     echo ""
     echo "##########################"
     echo "         NOTES            "
@@ -147,14 +147,14 @@ Help() {
 samplesheet=""
 outdir=""
 threads="1"
-# Store the path to the main single-sample FungiFunk.sh script
+# Store the path to the main single-sample MycoFunk.sh script
 # By default, assume it is in the same directory as this batch script
-fungifunk_script="${script_dir}/FungiFunk.sh"
+mycofunk_script="${script_dir}/MycoFunk.sh"
 # Store an optional DIAMOND database path
-# Empty means we will let FungiFunk.sh use its own default
+# Empty means we will let MycoFunk.sh use its own default
 diamond_db=""
 # Store an optional EggNOG database path
-# Empty means we will let FungiFunk.sh use its own default
+# Empty means we will let MycoFunk.sh use its own default
 eggnog_db=""
 write_full_annotation="false"
 skip_unannotated_hits="false"
@@ -166,7 +166,7 @@ skip_cazy_read_counts="false"
 skip_pfam_read_counts="false"
 compress_outputs="false"
 # DIAMOND filtering options.
-# These options are passed directly to DIAMOND blastx by FungiFunk.sh if provided by the user
+# These options are passed directly to DIAMOND blastx by MycoFunk.sh if provided by the user
 evalue=""
 min_score=""
 id=""
@@ -197,8 +197,8 @@ while [[ $# -gt 0 ]]; do
             threads="$2"
             shift 2
             ;;
-        --fungifunk_script)
-            fungifunk_script="$2"
+        --mycofunk_script)
+            mycofunk_script="$2"
             shift 2
             ;;
         -d|--diamond_db)
@@ -312,13 +312,13 @@ if [[ ! -f "$samplesheet" ]]; then
     exit 1
 fi
 
-if [[ ! -f "$fungifunk_script" ]]; then
-    echo "ERROR: FungiFunk.sh not found: $fungifunk_script" >&2r.
+if [[ ! -f "$mycofunk_script" ]]; then
+    echo "ERROR: MycoFunk.sh not found: $mycofunk_script" >&2r.
     exit 1
 fi
 
-if [[ ! -r "$fungifunk_script" ]]; then
-    echo "ERROR: FungiFunk.sh is not readable: $fungifunk_script" >&2
+if [[ ! -r "$mycofunk_script" ]]; then
+    echo "ERROR: MycoFunk.sh is not readable: $mycofunk_script" >&2
     exit 1
 fi
 
@@ -427,10 +427,10 @@ fi
 mkdir -p "$outdir"
 
 # Define the path to the batch run log
-batch_log="${outdir}/FungiFunk_batch_run_info.log"
+batch_log="${outdir}/MycoFunk_batch_run_info.log"
 
 # Define the path to the batch summary table
-batch_summary="${outdir}/FungiFunk_batch_summary.tsv"
+batch_summary="${outdir}/MycoFunk_batch_summary.tsv"
 
 # Write batch run metadata to log file
 cat > "$batch_log" <<EOF
@@ -443,11 +443,11 @@ Command: ${COMMAND_RUN}
 Samples information:
     Samplesheet: ${samplesheet}
     Output directory: ${outdir}
-    FungiFunk script: ${fungifunk_script}
+    MycoFunk script: ${mycofunk_script}
 
 Databases:
-    DIAMOND database: ${diamond_db:-FungiFunk.sh default}
-    EggNOG database: ${eggnog_db:-FungiFunk.sh default}
+    DIAMOND database: ${diamond_db:-MycoFunk.sh default}
+    EggNOG database: ${eggnog_db:-MycoFunk.sh default}
 
 Run options:
     Threads per sample: ${threads}
@@ -478,7 +478,7 @@ echo -e "prefix\treads1\treads2\toutdir\tstatus\texit_code\treason\tlog_file" > 
 
 
 ########################################################################################################
-# Build common FungiFunk.sh arguments
+# Build common MycoFunk.sh arguments
 ########################################################################################################
 
 # Create an empty bash array to store optional arguments shared by all samples
@@ -592,7 +592,7 @@ failed_samples=0
 
 
 ########################################################################################################
-# Run FungiFunk.sh for each sample in the samplesheet
+# Run MycoFunk.sh for each sample in the samplesheet
 ########################################################################################################
 
 # Read the samplesheet line by line
@@ -615,8 +615,8 @@ while IFS=$'\t' read -r prefix reads1 reads2 extra; do
     sample_outdir="${outdir}/${prefix}"
 
     # Define the log file for this sample
-    # This log will capture stdout and stderr from FungiFunk.sh
-    sample_log="${sample_outdir}/FungiFunk_${prefix}.batch.log"
+    # This log will capture stdout and stderr from MycoFunk.sh
+    sample_log="${sample_outdir}/MycoFunk_${prefix}.batch.log"
 
     # Create the sample output directory if it does not already exist
     mkdir -p "$sample_outdir"
@@ -640,11 +640,11 @@ while IFS=$'\t' read -r prefix reads1 reads2 extra; do
         # Store a simple reason for the failure
         reason="Samplesheet row has more than 3 columns"
         # Print a clear error message
-        echo "[ERROR] Sample $prefix failed before running FungiFunk."
+        echo "[ERROR] Sample $prefix failed before running MycoFunk."
         # Print the reason.
         echo "        Reason: $reason"
         # Add a FAILED entry to the batch summary
-        # exit_code is NA because FungiFunk.sh was not run
+        # exit_code is NA because MycoFunk.sh was not run
         echo -e "${prefix}\t${reads1}\t${reads2}\t${sample_outdir}\tFAILED\tNA\t${reason}\t${sample_log}" >> "$batch_summary"
         # Increase the failed sample counter by one
         failed_samples=$((failed_samples + 1))
@@ -665,7 +665,7 @@ while IFS=$'\t' read -r prefix reads1 reads2 extra; do
         # Store a simple reason for the failure
         reason="Missing prefix, reads1, or reads2 in samplesheet row"
         # Print a clear error message.
-        echo "[ERROR] Sample row failed before running FungiFunk."
+        echo "[ERROR] Sample row failed before running MycoFunk."
         # Print the reason.
         echo "        Reason: $reason"
         # Add a FAILED entry to the batch summary
@@ -690,11 +690,11 @@ while IFS=$'\t' read -r prefix reads1 reads2 extra; do
         # Store a simple reason for the failure
         reason="reads1 file not found"
         # Print a clear error message
-        echo "[ERROR] Sample $prefix failed before running FungiFunk."
+        echo "[ERROR] Sample $prefix failed before running MycoFunk."
         # Print the reason and the missing file path
         echo "        Reason: $reason: $reads1"
         # Add a FAILED entry to the batch summary
-        # exit_code is NA because FungiFunk.sh was not run
+        # exit_code is NA because MycoFunk.sh was not run
         echo -e "${prefix}\t${reads1}\t${reads2}\t${sample_outdir}\tFAILED\tNA\t${reason}\t${sample_log}" >> "$batch_summary"
         # Increase the failed sample counter by one
         failed_samples=$((failed_samples + 1))
@@ -716,11 +716,11 @@ while IFS=$'\t' read -r prefix reads1 reads2 extra; do
         # Store a simple reason for the failure
         reason="reads2 file not found"
         # Print a clear error message
-        echo "[ERROR] Sample $prefix failed before running FungiFunk."
+        echo "[ERROR] Sample $prefix failed before running MycoFunk."
         # Print the reason and the missing file path
         echo "        Reason: $reason: $reads2"
         # Add a FAILED entry to the batch summary
-        # exit_code is NA because FungiFunk.sh was not run
+        # exit_code is NA because MycoFunk.sh was not run
         echo -e "${prefix}\t${reads1}\t${reads2}\t${sample_outdir}\tFAILED\tNA\t${reason}\t${sample_log}" >> "$batch_summary"
         # Increase the failed sample counter by one
         failed_samples=$((failed_samples + 1))
@@ -738,19 +738,19 @@ while IFS=$'\t' read -r prefix reads1 reads2 extra; do
 
 
     ####################################################################################################
-    # Run FungiFunk.sh for this sample
+    # Run MycoFunk.sh for this sample
     ####################################################################################################
 
-    # Run the single-sample FungiFunk.sh script
+    # Run the single-sample MycoFunk.sh script
     # -1 passes reads1
     # -2 passes reads2
     # -p passes the sample prefix
     # -o passes the sample-specific output directory
     # -t passes the number of threads
     # "${common_args[@]}" passes all optional common batch settings safely
-    # > "$sample_log" redirects stdout to FungiFunk_${prefix}.batch.log
+    # > "$sample_log" redirects stdout to MycoFunk_${prefix}.batch.log
     # 2>&1 redirects stderr to the same log file
-    bash "$fungifunk_script" \
+    bash "$mycofunk_script" \
         -1 "$reads1" \
         -2 "$reads2" \
         -p "$prefix" \
@@ -759,10 +759,10 @@ while IFS=$'\t' read -r prefix reads1 reads2 extra; do
         "${common_args[@]}" \
         > "$sample_log" 2>&1
 
-    # Store the exit code from FungiFunk.sh
+    # Store the exit code from MycoFunk.sh
     exit_code=$?
 
-    # Check whether FungiFunk.sh completed successfully
+    # Check whether MycoFunk.sh completed successfully
     if [[ "$exit_code" -eq 0 ]]; then
         # Store a success reason
         reason="Completed successfully"
@@ -772,10 +772,10 @@ while IFS=$'\t' read -r prefix reads1 reads2 extra; do
         echo -e "${prefix}\t${reads1}\t${reads2}\t${sample_outdir}\tSUCCESS\t${exit_code}\t${reason}\t${sample_log}" >> "$batch_summary"
         # Increase the successful sample counter by one
         successful_samples=$((successful_samples + 1))
-    # If FungiFunk.sh returned a non-zero exit code...
+    # If MycoFunk.sh returned a non-zero exit code...
     else
         # Store a general failure reason
-        reason="FungiFunk.sh exited with non-zero status"
+        reason="MycoFunk.sh exited with non-zero status"
         # Print a clear error message
         echo "[ERROR] Sample $prefix failed."
         echo "        Exit code: $exit_code"
@@ -798,7 +798,7 @@ while IFS=$'\t' read -r prefix reads1 reads2 extra; do
         if [[ "$stop_on_error" == "true" ]]; then
             # Print a stopping message
             echo "[ERROR] --stop_on_error was used. Stopping batch."
-            # Stop the batch using the same exit code returned by FungiFunk.sh
+            # Stop the batch using the same exit code returned by MycoFunk.sh
             exit "$exit_code"
         fi
     fi

@@ -1,19 +1,19 @@
-# FungiFunk
+# MycoFunk
 
 **Fungal functional profiling from paired-end sequencing reads.**
 
-FungiFunk is a modular command-line toolkit for functional profiling of fungal paired-end sequencing reads.
+MycoFunk is a modular command-line toolkit for functional profiling of fungal paired-end sequencing reads.
 
 It combines protein-level read mapping with DIAMOND, EggNOG-derived functional annotation, multi-sample processing, cross-sample summaries, and optional construction of custom reference databases.
 
-Its modules can be used independently or connected: a custom reference can be built with `FungiFunk_build`, multiple samples can be processed with `FungiFunk_batch`, which runs the core `FungiFunk` workflow for each sample, and the resulting outputs can then be combined with `FungiFunk_summary`.
+Its modules can be used independently or connected: a custom reference can be built with `MycoFunk_build`, multiple samples can be processed with `MycoFunk_batch`, which runs the core `MycoFunk` workflow for each sample, and the resulting outputs can then be combined with `MycoFunk_summary`.
 
-**Current version:** v0.1.9\
+**Current version:** v0.2.0\
 **Status:** Active development
 
-## How FungiFunk fits together
+## How MycoFunk fits together
 
-FungiFunk is organised as a set of connected modules covering different stages of a functional profiling workflow.
+MycoFunk is organised as a set of connected modules covering different stages of a functional profiling workflow.
 
 A complete multi-sample workflow can use the modules as follows:
 
@@ -21,10 +21,10 @@ A complete multi-sample workflow can use the modules as follows:
                          Reference database
                     ┌────────────┴────────────┐
                     │                         │
-       Official FungiFunk database*     Custom protein FASTA
+       Official MycoFunk database*     Custom protein FASTA
                     |                          │
                     |                          ▼
-                    |               FungiFunk_build.sh
+                    |               MycoFunk_build.sh
                     |                          │
                     |               Paired DIAMOND + EggNOG
                     |                  reference databases
@@ -36,16 +36,16 @@ A complete multi-sample workflow can use the modules as follows:
                       Multiple samples + TSV
                                  │
                                  ▼
-                      FungiFunk_batch.sh
+                      MycoFunk_batch.sh
                                  │
-                      runs FungiFunk.sh
+                      runs MycoFunk.sh
                          for each sample
                                  │
                                  ▼
                        Per-sample outputs
                                  │
                                  ▼
-                     FungiFunk_summary.sh
+                     MycoFunk_summary.sh
                                  │
                                  ▼
              Cross-sample count matrices
@@ -53,24 +53,24 @@ A complete multi-sample workflow can use the modules as follows:
              + interactive HTML report
 ```
 
-*An official FungiFunk reference database set is planned for distribution. Once available, users will also be able to skip the custom database-building step and use the provided reference databases directly.
+*An official MycoFunk reference database set is planned for distribution. Once available, users will also be able to skip the custom database-building step and use the provided reference databases directly.
 
-The modules can also be used independently. For example, `FungiFunk.sh` can analyse a single sample directly, and `FungiFunk_summary.sh` can combine outputs from independently executed FungiFunk runs without requiring `FungiFunk_batch.sh`.
+The modules can also be used independently. For example, `MycoFunk.sh` can analyse a single sample directly, and `MycoFunk_summary.sh` can combine outputs from independently executed MycoFunk runs without requiring `MycoFunk_batch.sh`.
 
 ### Main modules
 
 | Module | Purpose |
 | --- | --- |
-| `FungiFunk_build.sh` | Build a compatible custom DIAMOND + EggNOG reference database pair from a protein FASTA file. |
-| `FungiFunk.sh` | Perform functional profiling for one paired-end sample. |
-| `FungiFunk_batch.sh` | Run `FungiFunk.sh` sequentially across multiple samples from a TSV samplesheet. |
-| `FungiFunk_summary.sh` | Combine outputs from multiple FungiFunk runs into cross-sample matrices, summary tables, and an interactive HTML report. |
+| `MycoFunk_build.sh` | Build a compatible custom DIAMOND + EggNOG reference database pair from a protein FASTA file. |
+| `MycoFunk.sh` | Perform functional profiling for one paired-end sample. |
+| `MycoFunk_batch.sh` | Run `MycoFunk.sh` sequentially across multiple samples from a TSV samplesheet. |
+| `MycoFunk_summary.sh` | Combine outputs from multiple MycoFunk runs into cross-sample matrices, summary tables, and an interactive HTML report. |
 
 The Bash scripts are the recommended entry points. Python scripts in the repository are used internally by these modules.
 
 ### What happens during sample profiling?
 
-For each sample, `FungiFunk.sh`:
+For each sample, `MycoFunk.sh`:
 
 1. Takes paired-end sequencing reads in FASTQ or compressed FASTQ format.
 2. Maps R1 and R2 reads independently against a fungal protein reference database using DIAMOND `blastx`.
@@ -114,40 +114,40 @@ Paired-end reads
 
 # Installation
 
-FungiFunk runs from the command line using Bash, Python, DIAMOND, EggNOG-mapper, and supporting Python packages.
+MycoFunk runs from the command line using Bash, Python, DIAMOND, EggNOG-mapper, and supporting Python packages.
 
-All FungiFunk modules use the same Conda environment.
+All MycoFunk modules use the same Conda environment.
 
-A environment configuration file, `FungiFunk.yml`, is provided in the root directory of the repository.
+A environment configuration file, `MycoFunk.yml`, is provided in the root directory of the repository.
 
-## 1. Get FungiFunk
+## 1. Get MycoFunk
 
 Clone or download the repository and move into its main directory:
 
 ```bash
-git clone https://github.com/Rounge-lab/FungiFunk
-cd FungiFunk
+git clone https://github.com/Rounge-lab/MycoFunk
+cd MycoFunk
 ```
 
-## 2. Create the FungiFunk Conda environment
+## 2. Create the MycoFunk Conda environment
 
 Make sure Conda is installed and available in your terminal.
 
 Create the environment using the provided YAML file:
 
 ```bash
-conda env create -f FungiFunk.yml
+conda env create -f MycoFunk.yml
 ```
 
 Activate it:
 
 ```bash
-conda activate FungiFunk
+conda activate MycoFunk
 ```
 
 ## 3. Reference databases
 
-FungiFunk requires two paired reference files:
+MycoFunk requires two paired reference files:
 
 - A DIAMOND protein database (`.dmnd`)
 - An EggNOG annotation table (`.emapper.annotations`)
@@ -161,37 +161,37 @@ Their paths can be provided explicitly with:
 -e, --eggnog_db
 ```
 
-FungiFunk is designed to use an official default paired database set when these options are not provided.
+MycoFunk is designed to use an official default paired database set when these options are not provided.
 
-> **Database availability:** The official FungiFunk default reference databases are planned for distribution but are not yet available as part of the current development release. Until they are provided, users should supply compatible DIAMOND and EggNOG database files explicitly, or place compatible files in the default FungiFunk database locations.
+> **Database availability:** The official MycoFunk default reference databases are planned for distribution but are not yet available as part of the current development release. Until they are provided, users should supply compatible DIAMOND and EggNOG database files explicitly, or place compatible files in the default MycoFunk database locations.
 
-A compatible custom database pair can also be generated directly with `FungiFunk_build.sh`.
+A compatible custom database pair can also be generated directly with `MycoFunk_build.sh`.
 
 ## 4. Check the installation
 
 Check the version of each module:
 
 ```bash
-bash FungiFunk.sh --version
-bash FungiFunk_batch.sh --version
-bash FungiFunk_summary.sh --version
-bash FungiFunk_build.sh --version
+bash MycoFunk.sh --version
+bash MycoFunk_batch.sh --version
+bash MycoFunk_summary.sh --version
+bash MycoFunk_build.sh --version
 ```
 
 Detailed command-line help is available with:
 
 ```bash
-bash FungiFunk.sh --help
-bash FungiFunk_batch.sh --help
-bash FungiFunk_summary.sh --help
-bash FungiFunk_build.sh --help
+bash MycoFunk.sh --help
+bash MycoFunk_batch.sh --help
+bash MycoFunk_summary.sh --help
+bash MycoFunk_build.sh --help
 ```
 
 ---
 
 # Quick start
 
-The FungiFunk modules can be used independently, but they can also be connected.
+The MycoFunk modules can be used independently, but they can also be connected.
 
 The example below shows a typical multi-sample analysis using a custom reference database.
 
@@ -200,7 +200,7 @@ The example below shows a typical multi-sample analysis using a custom reference
 Starting from a protein database FASTA file:
 
 ```bash
-bash FungiFunk_build.sh \
+bash MycoFunk_build.sh \
     -i proteins.faa \
     -o custom_database \
     -p my_fungal_db \
@@ -217,9 +217,9 @@ custom_database/
     └── my_fungal_db.emapper.annotations
 ```
 
-Both files originate from the same protein FASTA and can therefore be used together by FungiFunk.
+Both files originate from the same protein FASTA and can therefore be used together by MycoFunk.
 
-If an official or previously prepared compatible FungiFunk database is already available, this step can be skipped.
+If an official or previously prepared compatible MycoFunk database is already available, this step can be skipped.
 
 ## 2. Prepare a samplesheet
 
@@ -231,12 +231,12 @@ sampleA	/path/sampleA_R1.fastq.gz	/path/sampleA_R2.fastq.gz
 sampleB	/path/sampleB_R1.fastq.gz	/path/sampleB_R2.fastq.gz
 ```
 
-## 3. Run FungiFunk across the samples
+## 3. Run MycoFunk across the samples
 
-Pass the databases generated by `FungiFunk_build.sh` directly to `FungiFunk_batch.sh`:
+Pass the databases generated by `MycoFunk_build.sh` directly to `MycoFunk_batch.sh`:
 
 ```bash
-bash FungiFunk_batch.sh \
+bash MycoFunk_batch.sh \
     -s samplesheet.tsv \
     -o batch_results \
     -d custom_database/diamond/my_fungal_db.dmnd \
@@ -244,14 +244,14 @@ bash FungiFunk_batch.sh \
     -t 8
 ```
 
-`FungiFunk_batch.sh` runs `FungiFunk.sh` once for each sample and stores the corresponding FungiFunk results in separate sample directories.
+`MycoFunk_batch.sh` runs `MycoFunk.sh` once for each sample and stores the corresponding MycoFunk results in separate sample directories.
 
 ## 4. Summarise the dataset
 
-The complete batch output can then be passed directly to `FungiFunk_summary.sh`:
+The complete batch output can then be passed directly to `MycoFunk_summary.sh`:
 
 ```bash
-bash FungiFunk_summary.sh \
+bash MycoFunk_summary.sh \
     --input_dir batch_results \
     --outdir summary_results
 ```
@@ -264,20 +264,20 @@ The complete workflow is therefore:
 protein FASTA
      │
      ▼
-FungiFunk_build
+MycoFunk_build
      │
      ▼
 paired reference databases
      │
      ▼
-FungiFunk_batch
+MycoFunk_batch
      │
-     ├──► FungiFunk → sampleA results
-     ├──► FungiFunk → sampleB results
-     └──► FungiFunk → sampleC results
+     ├──► MycoFunk → sampleA results
+     ├──► MycoFunk → sampleB results
+     └──► MycoFunk → sampleC results
                          │
                          ▼
-                 FungiFunk_summary
+                 MycoFunk_summary
                          │
                          ▼
                 cross-sample results
@@ -285,10 +285,10 @@ FungiFunk_batch
 
 ## Running a single sample
 
-`FungiFunk.sh` can also be used directly without the batch module:
+`MycoFunk.sh` can also be used directly without the batch module:
 
 ```bash
-bash FungiFunk.sh \
+bash MycoFunk.sh \
     -1 sample_R1.fastq.gz \
     -2 sample_R2.fastq.gz \
     -p sampleA \
@@ -309,18 +309,18 @@ Here:
 
 FASTQ and compressed FASTQ (`.fastq.gz`) input files are supported.
 
-Outputs from multiple independently executed `FungiFunk.sh` runs can also be combined later with `FungiFunk_summary.sh`.
+Outputs from multiple independently executed `MycoFunk.sh` runs can also be combined later with `MycoFunk_summary.sh`.
 
 ---
 
-# Main FungiFunk outputs
+# Main MycoFunk outputs
 
 A standard run produces a run-information log, input read counts, DIAMOND results, annotation tables, and functional read-count tables.
 
 ```text
 sample_output/
 │
-├── FungiFunk_<prefix>_run_info.log
+├── MycoFunk_<prefix>_run_info.log
 ├── <prefix>_input_read_counts.tsv
 │
 ├── diamond/
@@ -364,11 +364,11 @@ A larger extended annotation table can optionally be written using:
 
 ## Read-count tables
 
-FungiFunk generates separate count tables for several functional levels.
+MycoFunk generates separate count tables for several functional levels.
 
 These counts represent **read-level evidence**. R1 and R2 reads are processed independently and counts are not collapsed into paired-read fragments.
 
-For eggNOG orthologous groups, FungiFunk counts the most specific valid OG reported for each annotated hit while retaining the complete EggNOG OG hierarchy in the annotation table.
+For eggNOG orthologous groups, MycoFunk counts the most specific valid OG reported for each annotated hit while retaining the complete EggNOG OG hierarchy in the annotation table.
 
 Individual count tables can be disabled with the corresponding `--skip_*_read_counts` options, or all count tables can be disabled with:
 
@@ -388,7 +388,7 @@ Read-count summary tables remain uncompressed.
 
 # Alignment filtering
 
-FungiFunk can pass several filtering options directly to DIAMOND `blastx`:
+MycoFunk can pass several filtering options directly to DIAMOND `blastx`:
 
 | Option | Description |
 | --- | --- |
@@ -405,16 +405,16 @@ These filters determine which alignments reach the annotation stage.
 For the complete list of options and current defaults, use:
 
 ```bash
-bash FungiFunk.sh --help
+bash MycoFunk.sh --help
 ```
 
 ---
 
-# Running multiple samples with FungiFunk_batch
+# Running multiple samples with MycoFunk_batch
 
-`FungiFunk_batch.sh` runs `FungiFunk.sh` sequentially across multiple paired-end samples.
+`MycoFunk_batch.sh` runs `MycoFunk.sh` sequentially across multiple paired-end samples.
 
-`FungiFunk_batch.sh` uses the same `FungiFunk` Conda environment created from `FungiFunk.yml`.
+`MycoFunk_batch.sh` uses the same `MycoFunk` Conda environment created from `MycoFunk.yml`.
 
 ## Samplesheet
 
@@ -429,7 +429,7 @@ sampleB	/path/sampleB_R1.fastq.gz	/path/sampleB_R2.fastq.gz
 ## Run the batch
 
 ```bash
-bash FungiFunk_batch.sh \
+bash MycoFunk_batch.sh \
     -s samplesheet.tsv \
     -o batch_results \
     -t 8
@@ -438,7 +438,7 @@ bash FungiFunk_batch.sh \
 Custom databases can also be supplied:
 
 ```bash
-bash FungiFunk_batch.sh \
+bash MycoFunk_batch.sh \
     -s samplesheet.tsv \
     -o batch_results \
     -d databases/fungi.dmnd \
@@ -446,7 +446,7 @@ bash FungiFunk_batch.sh \
     -t 8
 ```
 
-Most FungiFunk output and DIAMOND filtering options can also be passed through the batch module.
+Most MycoFunk output and DIAMOND filtering options can also be passed through the batch module.
 
 By default, the batch continues if an individual sample fails.
 
@@ -458,44 +458,44 @@ To stop at the first failed sample, use:
 
 ## Batch outputs
 
-Each sample receives its own FungiFunk output directory.
+Each sample receives its own MycoFunk output directory.
 
 The batch module additionally writes:
 
 ```text
-FungiFunk_batch_run_info.log
-FungiFunk_batch_summary.tsv
+MycoFunk_batch_run_info.log
+MycoFunk_batch_summary.tsv
 ```
 
-`FungiFunk_batch_summary.tsv` records the status and exit code of each sample together with the corresponding log-file paths.
+`MycoFunk_batch_summary.tsv` records the status and exit code of each sample together with the corresponding log-file paths.
 
 For all batch options:
 
 ```bash
-bash FungiFunk_batch.sh --help
+bash MycoFunk_batch.sh --help
 ```
 
 ---
 
 # Summarising multiple samples
 
-`FungiFunk_summary.sh` combines outputs from multiple FungiFunk runs.
+`MycoFunk_summary.sh` combines outputs from multiple MycoFunk runs.
 
-It accepts results produced either by `FungiFunk_batch` or by independently executed FungiFunk runs.
+It accepts results produced either by `MycoFunk_batch` or by independently executed MycoFunk runs.
 
-`FungiFunk_summary.sh` uses the same `FungiFunk` Conda environment created from `FungiFunk.yml`.
+`MycoFunk_summary.sh` uses the same `MycoFunk` Conda environment created from `MycoFunk.yml`.
 
-The input directory is searched recursively for compatible FungiFunk outputs.
+The input directory is searched recursively for compatible MycoFunk outputs.
 
 ## Basic usage
 
 ```bash
-bash FungiFunk_summary.sh \
+bash MycoFunk_summary.sh \
     --input_dir batch_results \
     --outdir summary_results
 ```
 
-By default, FungiFunk_summary creates:
+By default, MycoFunk_summary creates:
 
 - Cross-sample raw read-count matrices
 - Sample-level summary tables
@@ -554,7 +554,7 @@ Optional dataset-derived context can be added for PFAM and eggNOG OG features wi
 
 This scans the annotation tables and identifies commonly associated protein names and descriptions to make these feature tables easier to interpret.
 
-This information is derived from the current FungiFunk dataset and should not be interpreted as official PFAM or EggNOG database metadata.
+This information is derived from the current MycoFunk dataset and should not be interpreted as official PFAM or EggNOG database metadata.
 
 Because this option requires additional scanning of annotation tables, it may increase runtime.
 
@@ -565,7 +565,7 @@ The main output structure is:
 ```text
 summary_results/
 │
-├── FungiFunk_summary_report.html
+├── MycoFunk_summary_report.html
 │
 ├── matrices/
 │   ├── protein_read_count_matrix.tsv
@@ -604,21 +604,21 @@ to stop instead when expected files are missing or inconsistent.
 For all summary options:
 
 ```bash
-bash FungiFunk_summary.sh --help
+bash MycoFunk_summary.sh --help
 ```
 
 ---
 
 # Building a custom reference database
 
-`FungiFunk_build.sh` creates a paired DIAMOND database and EggNOG annotation table from the same protein FASTA file.
+`MycoFunk_build.sh` creates a paired DIAMOND database and EggNOG annotation table from the same protein FASTA file.
 
 Keeping both outputs derived from the same FASTA ensures that protein identifiers found by DIAMOND can be matched correctly to the EggNOG annotation table.
 
 ## Build a custom database
 
 ```bash
-bash FungiFunk_build.sh \
+bash MycoFunk_build.sh \
     -i proteins.faa \
     -o custom_database \
     -p my_fungal_db \
@@ -636,7 +636,7 @@ custom_database/
 ├── eggnog/
 │   └── my_fungal_db.emapper.annotations
 │
-├── FungiFunk_build_run_info.log
+├── MycoFunk_build_run_info.log
 │
 └── logs/
 ```
@@ -653,10 +653,10 @@ the required EggNOG data are downloaded to:
 custom_database/eggnog_data/
 ```
 
-The resulting database pair can then be used with FungiFunk:
+The resulting database pair can then be used with MycoFunk:
 
 ```bash
-bash FungiFunk.sh \
+bash MycoFunk.sh \
     -1 sample_R1.fastq.gz \
     -2 sample_R2.fastq.gz \
     -p sampleA \
@@ -674,38 +674,38 @@ Existing outputs can be replaced during database building with:
 For all database-building options:
 
 ```bash
-bash FungiFunk_build.sh --help
+bash MycoFunk_build.sh --help
 ```
 
 ---
 
 # Choosing which modules to use
 
-FungiFunk does not require every module to be used in every analysis.
+MycoFunk does not require every module to be used in every analysis.
 
 | Goal | Recommended module(s) |
 | --- | --- |
-| Analyse one paired-end sample | `FungiFunk.sh` |
-| Analyse multiple paired-end samples using the same settings | `FungiFunk_batch.sh` |
-| Combine outputs from multiple FungiFunk runs | `FungiFunk_summary.sh` |
-| Build a compatible custom reference database | `FungiFunk_build.sh` |
-| Run a complete custom-reference multi-sample workflow | `FungiFunk_build.sh` → `FungiFunk_batch.sh` → `FungiFunk_summary.sh` |
+| Analyse one paired-end sample | `MycoFunk.sh` |
+| Analyse multiple paired-end samples using the same settings | `MycoFunk_batch.sh` |
+| Combine outputs from multiple MycoFunk runs | `MycoFunk_summary.sh` |
+| Build a compatible custom reference database | `MycoFunk_build.sh` |
+| Run a complete custom-reference multi-sample workflow | `MycoFunk_build.sh` → `MycoFunk_batch.sh` → `MycoFunk_summary.sh` |
 
-`FungiFunk_batch.sh` is a convenience layer around the core `FungiFunk.sh`: it runs the same sample-level analysis sequentially for each sample listed in the samplesheet.
+`MycoFunk_batch.sh` is a convenience layer around the core `MycoFunk.sh`: it runs the same sample-level analysis sequentially for each sample listed in the samplesheet.
 
-`FungiFunk_summary.sh` does not require the samples to have been processed through the batch module. Outputs from independently executed `FungiFunk.sh` runs can also be placed under a common input directory and summarised together.
+`MycoFunk_summary.sh` does not require the samples to have been processed through the batch module. Outputs from independently executed `MycoFunk.sh` runs can also be placed under a common input directory and summarised together.
 
 ---
 
 # Reproducibility
 
-FungiFunk writes run-information logs containing the software version, command, input files, database paths, and relevant parameters.
+MycoFunk writes run-information logs containing the software version, command, input files, database paths, and relevant parameters.
 
 These logs are intended to make analysis settings easier to track and reproduce.
 
 For reproducible analyses, record:
 
-- The FungiFunk version
+- The MycoFunk version
 - The reference database version
 - The command and filtering options used
 - The software environment
@@ -715,13 +715,13 @@ For reproducible analyses, record:
 
 # Important notes
 
-- FungiFunk reports **read-level counts**, not reconstructed fragment-level counts.
+- MycoFunk reports **read-level counts**, not reconstructed fragment-level counts.
 - R1 and R2 reads are processed independently.
 - DIAMOND filtering is performed before functional annotation.
 - DIAMOND and EggNOG reference files used together must represent the same protein reference set.
 - Functional annotations are transferred from the EggNOG annotation associated with each detected reference protein.
-- CPM values generated by `FungiFunk_summary` are normalised using the count totals of each functional table, not the original FASTQ read count.
-- FungiFunk is under active development. Output formats and functionality may evolve between development versions.
+- CPM values generated by `MycoFunk_summary` are normalised using the count totals of each functional table, not the original FASTQ read count.
+- MycoFunk is under active development. Output formats and functionality may evolve between development versions.
 
 ---
 
@@ -730,10 +730,10 @@ For reproducible analyses, record:
 Each module provides detailed command-line documentation:
 
 ```bash
-bash FungiFunk.sh --help
-bash FungiFunk_batch.sh --help
-bash FungiFunk_summary.sh --help
-bash FungiFunk_build.sh --help
+bash MycoFunk.sh --help
+bash MycoFunk_batch.sh --help
+bash MycoFunk_summary.sh --help
+bash MycoFunk_build.sh --help
 ```
 
 Version information can be displayed with the corresponding `--version` option.
@@ -742,7 +742,7 @@ Version information can be displayed with the corresponding `--version` option.
 
 # Development and maintenance
 
-FungiFunk was originally developed by **Blanca Candelas Galavis** as part of her PhD research in the [Rounge group](https://www.mn.uio.no/bils/english/groups/rounge-group/index.html) at the University of Oslo (UiO), Norway.
+MycoFunk was originally developed by **Blanca Candelas Galavis** as part of her PhD research in the [Rounge group](https://www.mn.uio.no/bils/english/groups/rounge-group/index.html) at the University of Oslo (UiO), Norway.
 
 The tool is currently maintained by **Blanca Candelas Galavis**.
 
@@ -750,7 +750,7 @@ Additional contributors and future maintainers will be acknowledged here as the 
 
 ## License
 
-FungiFunk is distributed under the **GNU General Public License, version 3 (GPLv3)**.
+MycoFunk is distributed under the **GNU General Public License, version 3 (GPLv3)**.
 
 See the [LICENSE](LICENSE) file for the full license text.
 

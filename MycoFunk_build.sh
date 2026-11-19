@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 
 ########################################################################################################
-# FungiFunk_build.sh
+# MycoFunk_build.sh
 #
-# Build paired custom databases for FungiFunk from a protein FASTA file.
+# Build paired custom databases for MycoFunk from a protein FASTA file.
 #
 # This script creates:
 #   1. A DIAMOND database for read mapping.
 #   2. An EggNOG-mapper annotation table for functional annotation transfer.
 #
 # Both outputs are generated from the same input protein FASTA file.
-# This is important because FungiFunk uses protein IDs from DIAMOND hits
+# This is important because MycoFunk uses protein IDs from DIAMOND hits
 # to retrieve matching annotations from the EggNOG annotation table.
 ########################################################################################################
 
@@ -22,8 +22,8 @@ set -u
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 
 # Define the name and version of the tool
-TOOL_NAME="FungiFunk_build"
-VERSION="0.1.9"
+TOOL_NAME="MycoFunk_build"
+VERSION="0.2.0"
 
 # Preserve the original command-line arguments exactly as supplied
 ORIGINAL_ARGS=("$@")
@@ -39,26 +39,26 @@ COMMAND_RUN="${COMMAND_RUN% }"
 
 Help() {
     echo ""
-    echo "     _____                  _ _____            _        _           _ _     _     "
-    echo "    |  ___|   _ _ __   __ _(_)  ___|   _ _ __ | | __   | |__  _   _(_) | __| |    "
-    echo "    | |_ | | | |  _ \ / _  | | |_ | | | |  _ \| |/ /   | '_ \| | | | | |/ _  |    "
-    echo "    |  _|| |_| | | | | (_| | |  _|| |_| | | | |   <    | |_) | |_| | | | (_| |    "
-    echo "    |_|   \__,_|_| |_|\__, |_|_|   \__,_|_| |_|_|\_\___|_.__/ \__,_|_|_|\__,_|    "
-    echo "                      |___/                                                       "
+    echo " __  __                 _____            _        _           _ _     _ "
+    echo "|  \/  |_   _  ___ ___ |  ___|   _ _ __ | | __   | |__  _   _(_) | __| |"
+    echo "| |\/| | | | |/ __/ _ \| |_ | | | | '_ \| |/ /   | '_ \| | | | | |/ _  |"
+    echo "| |  | | |_| | (_| (_) |  _|| |_| | | | |   <    | |_) | |_| | | | (_| |"
+    echo "|_|  |_|\__, |\___\___/|_|   \__,_|_| |_|_|\_\___|_.__/ \__,_|_|_|\__,_|"
+    echo "        |___/                                                           "
     echo ""
-    echo "${TOOL_NAME} v${VERSION}: build custom FungiFunk databases from a protein FASTA file"
+    echo "${TOOL_NAME} v${VERSION}: build custom MycoFunk databases from a protein FASTA file"
     echo ""
-    echo "FungiFunk_build creates paired DIAMOND and EggNOG annotation databases"
+    echo "MycoFunk_build creates paired DIAMOND and EggNOG annotation databases"
     echo "from the same input protein FASTA file."
     echo ""
-    echo "These paired databases can then be passed to FungiFunk.sh using:"
+    echo "These paired databases can then be passed to MycoFunk.sh using:"
     echo "  -d <custom_diamond_db.dmnd>"
     echo "  -e <custom_eggnog_annotations.emapper.annotations>"
     echo ""
     echo "##########################"
     echo "         USAGE"
     echo "##########################"
-    echo "  FungiFunk_build.sh -i <protein_fasta.faa> -o <outdir> [optional arguments]"
+    echo "  MycoFunk_build.sh -i <protein_fasta.faa> -o <outdir> [optional arguments]"
     echo ""
     echo "##########################"
     echo "        ARGUMENTS"
@@ -69,13 +69,13 @@ Help() {
     echo ""
     echo "Optional:"
     echo "  -p, --db_prefix            Prefix/name for the custom database outputs"
-    echo "                             [default: fungifunk_custom_db]"
+    echo "                             [default: mycofunk_custom_db]"
     echo "  -t, --threads <int>        Number of threads [default: 1]"
     echo "  --eggnog_data_dir          Existing EggNOG-mapper data directory"
     echo "                             [default: download to <outdir>/eggnog_data]"
     echo "  --force                    Overwrite existing output files"
-    echo "  --timestamps               Add timestamps to FungiFunk progress messages"
-    echo "  --version                  Show FungiFunk_build version"
+    echo "  --timestamps               Add timestamps to MycoFunk progress messages"
+    echo "  --version                  Show MycoFunk_build version"
     echo "  -h, --help                 Show this help message"
     echo ""
     echo "##########################"
@@ -90,7 +90,7 @@ Help() {
     echo "  <outdir>/eggnog_data/"
     echo "      EggNOG-mapper data directory, created only if --eggnog_data_dir is not provided"
     echo ""
-    echo "  <outdir>/FungiFunk_build_run_info.log"
+    echo "  <outdir>/MycoFunk_build_run_info.log"
     echo "      Build metadata log with version, command, inputs, outputs, and parameters"
     echo ""
     echo "  <outdir>/logs/"
@@ -98,7 +98,7 @@ Help() {
     echo ""
     echo "Notes:"
     echo "  The DIAMOND database and EggNOG annotation table are generated as a paired database set."
-    echo "  Both are built from the same protein FASTA so that FungiFunk can correctly match DIAMOND hits to EggNOG annotations."
+    echo "  Both are built from the same protein FASTA so that MycoFunk can correctly match DIAMOND hits to EggNOG annotations."
     echo "  If --eggnog_data_dir is provided, EggNOG data download is skipped automatically."
     echo ""
 }
@@ -110,7 +110,7 @@ Help() {
 
 input_fasta=""
 outdir=""
-db_prefix="fungifunk_custom_db"
+db_prefix="mycofunk_custom_db"
 threads="1"
 # Store the EggNOG-mapper data directory.
 # If empty, the script will use <outdir>/eggnog_data and download the data there.
@@ -280,7 +280,7 @@ eggnog_output_base="${db_prefix}"
 eggnog_annotation_file="${eggnog_outdir}/${eggnog_output_base}.emapper.annotations"
 
 # Define the build metadata log path
-build_info_log="${outdir}/FungiFunk_build_run_info.log"
+build_info_log="${outdir}/MycoFunk_build_run_info.log"
 
 # Define the DIAMOND makedb log path
 diamond_log="${logs_outdir}/${db_prefix}_diamond_makedb.log"
@@ -297,7 +297,7 @@ eggnog_download_script=""
 # Define a path to a temporary patched copy of download_eggnog_data.py, created only if the installed script contains an outdated EggNOG URL
 patched_eggnog_download_script="${logs_outdir}/download_eggnog_data_patched.py"
 
-# Track whether FungiFunk_build had to create a temporary patched copy of download_eggnog_data.py
+# Track whether MycoFunk_build had to create a temporary patched copy of download_eggnog_data.py
 eggnog_download_script_was_patched="false"
 
 
@@ -441,10 +441,10 @@ if [[ "$user_provided_eggnog_data_dir" == "false" ]]; then
     if grep -q "eggnogdb.embl.de" "$eggnog_download_script"; then
         # Inform the user that a temporary patched copy will be used instead of modifying the original Conda script
         log_msg "[WARNING] download_eggnog_data.py contains the outdated EggNOG download domain."
-        log_msg "[WARNING] Creating a patched temporary copy for this FungiFunk_build run."
+        log_msg "[WARNING] Creating a patched temporary copy for this MycoFunk_build run."
         log_msg "[WARNING] The original Conda environment will not be modified."
 
-        # Copy the installed download script to the FungiFunk_build logs directory
+        # Copy the installed download script to the MycoFunk_build logs directory
         cp "$eggnog_download_script" "$patched_eggnog_download_script"
 
         # Replace the outdated EggNOG domain only in the temporary copy
@@ -603,7 +603,7 @@ log_msg "[SUCCESS] EggNOG annotation table created."
 
 echo "###################################################################################################"
 # Print final success message
-log_msg "[SUCCESS] FungiFunk custom database build completed."
+log_msg "[SUCCESS] MycoFunk custom database build completed."
 echo ""
 
 # Introduce output paths
@@ -614,8 +614,8 @@ log_msg "  EggNOG annotation table:"
 log_msg "    $eggnog_annotation_file"
 echo ""
 
-# Print the exact options to use later for FungiFunk.sh
-log_msg "Use these options with FungiFunk.sh:"
+# Print the exact options to use later for MycoFunk.sh
+log_msg "Use these options with MycoFunk.sh:"
 log_msg "  -d $diamond_db_file"
 log_msg "  -e $eggnog_annotation_file"
 echo ""

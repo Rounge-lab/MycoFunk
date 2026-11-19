@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 """
-FungiFunk_summary.py
+MycoFunk_summary.py
 
-Create comparative summary tables and an HTML report from multiple FungiFunk runs.
+Create comparative summary tables and an HTML report from multiple MycoFunk runs.
 
-This module reads FungiFunk annotation/count outputs from several samples and creates:
+This module reads MycoFunk annotation/count outputs from several samples and creates:
 - raw count matrices
 - optional CPM-normalised matrices
 - protein metadata
@@ -48,21 +48,21 @@ def parse_args() -> argparse.Namespace:
     Parse command-line arguments.
     """
     parser = argparse.ArgumentParser(
-        description="Summarise and compare outputs from multiple FungiFunk runs."
+        description="Summarise and compare outputs from multiple MycoFunk runs."
     )
 
     # Add the required argument --input_dir
     parser.add_argument(
         "--input_dir",
         required=True,
-        help="Directory containing FungiFunk outputs. The directory is searched recursively.",
+        help="Directory containing MycoFunk outputs. The directory is searched recursively.",
     )
 
     # Add the required argument --outdir
     parser.add_argument(
         "--outdir",
         required=True,
-        help="Output directory for FungiFunk summary results.",
+        help="Output directory for MycoFunk summary results.",
     )
 
     # Add the optional argument --threads
@@ -71,7 +71,7 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=1,
         help=(
-            "Number of worker processes used by FungiFunk_summary. "
+            "Number of worker processes used by MycoFunk_summary. "
             "Mainly used when summarising annotation tables. "
             "Higher values may reduce runtime but increase RAM usage. "
             "Default: 1."
@@ -93,7 +93,7 @@ def parse_args() -> argparse.Namespace:
         "--strict",
         action="store_true",
         help=(
-            "Require all expected FungiFunk output tables for every detected sample. "
+            "Require all expected MycoFunk output tables for every detected sample. "
             "Without this option, missing files are reported as warnings and the summary continues."
         ),
     )
@@ -143,14 +143,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--timestamps",
         action="store_true",
-        help="Add timestamps to FungiFunk_summary progress messages.",
+        help="Add timestamps to MycoFunk_summary progress messages.",
     )
 
-    # Run metadata log written by the FungiFunk_summary wrapper
+    # Run metadata log written by the MycoFunk_summary wrapper
     parser.add_argument(
         "--run_info_log",
         default=None,
-        help="Path to the FungiFunk_summary run information log.",
+        help="Path to the MycoFunk_summary run information log.",
     )
 
     # Parse the arguments provided by the user and return them
@@ -173,7 +173,7 @@ MISSING_VALUES = {
     "NULL",
 }
 
-# Count table definitions used by FungiFunk
+# Count table definitions used by MycoFunk
 COUNT_TABLES = {
     "protein": {
         "suffix": "_protein_read_counts.tsv",
@@ -212,7 +212,7 @@ COUNT_TABLES = {
     },
 }
 
-# Additional FungiFunk output tables
+# Additional MycoFunk output tables
 EXTRA_TABLES = {
     "input_read_counts": {
         "suffix": "_input_read_counts.tsv",
@@ -294,7 +294,7 @@ def read_header(path):
         raise RuntimeError(f"Could not read header from {path}: {exc}") from exc
 
 
-# Check whether a value should be treated as missing in FungiFunk tables
+# Check whether a value should be treated as missing in MycoFunk tables
 def is_missing_value(value):
     """
     Return True if a value should be treated as missing.
@@ -381,7 +381,7 @@ def first_valid_value(values):
     return "-"
 
 
-# Extract a sample name from a FungiFunk output filename
+# Extract a sample name from a MycoFunk output filename
 def extract_sample_from_filename(filename, suffix):
     """
     Extract the sample name by removing a known suffix from a filename.
@@ -394,10 +394,10 @@ def extract_sample_from_filename(filename, suffix):
     return filename[: -len(suffix)]
 
 
-# Find FungiFunk output tables in the input directory and group them by sample
-def discover_fungifunk_outputs(input_dir, strict=False):
+# Find MycoFunk output tables in the input directory and group them by sample
+def discover_mycofunk_outputs(input_dir, strict=False):
     """
-    Discover FungiFunk output files inside an input directory.
+    Discover MycoFunk output files inside an input directory.
 
     The function searches recursively and extracts sample names from filenames.
     """
@@ -418,7 +418,7 @@ def discover_fungifunk_outputs(input_dir, strict=False):
         # Get only the filename, without the full directory path
         filename = path.name
 
-        # Check whether the filename matches any known FungiFunk output suffix
+        # Check whether the filename matches any known MycoFunk output suffix
         for table_key, info in all_definitions.items():
             # Get the expected suffix for this table type
             suffix = info["suffix"]
@@ -465,7 +465,7 @@ def discover_fungifunk_outputs(input_dir, strict=False):
     return dict(samples), inventory_df, duplicate_records
 
 
-# Check that the discovered FungiFunk outputs are complete enough to summarise
+# Check that the discovered MycoFunk outputs are complete enough to summarise
 def validate_discovered_outputs(samples, strict=False):
     """
     Validate discovered output files.
@@ -475,9 +475,9 @@ def validate_discovered_outputs(samples, strict=False):
     # Build the list of all table types expected for each sample
     expected_tables = list(COUNT_TABLES.keys()) + list(EXTRA_TABLES.keys())
 
-    # Stop immediately if no FungiFunk output files were found
+    # Stop immediately if no MycoFunk output files were found
     if not samples:
-        error_exit("No FungiFunk output files were detected in --input_dir.")
+        error_exit("No MycoFunk output files were detected in --input_dir.")
 
     # Check the detected files for each sample
     for sample, files in samples.items():
@@ -575,7 +575,7 @@ def sort_matrix_columns_natural(matrix, protected_columns=None):
     return matrix.loc[:, protected_columns + sorted_columns]
 
 
-# Build a per-sample overview of which expected FungiFunk output files were found
+# Build a per-sample overview of which expected MycoFunk output files were found
 def build_sample_summary(samples):
     """
     Build a summary table describing which files were detected for each sample.
@@ -608,10 +608,10 @@ def build_sample_summary(samples):
     return pd.DataFrame(rows)
 
 
-# Read a FungiFunk count table and return counts indexed by feature ID
+# Read a MycoFunk count table and return counts indexed by feature ID
 def read_count_table(path, id_col):
     """
-    Read one FungiFunk count table and return a clean Series of counts.
+    Read one MycoFunk count table and return a clean Series of counts.
     """
     # Read only the header first to check that the expected columns exist
     header = read_header(path)
@@ -654,7 +654,7 @@ def read_count_table(path, id_col):
     return counts
 
 
-# Build a count matrix for one FungiFunk annotation/count table type
+# Build a count matrix for one MycoFunk annotation/count table type
 def build_count_matrix(samples, table_key, strict=False):
     """
     Build one count matrix for a specific annotation type.
@@ -728,7 +728,7 @@ def write_count_matrices(samples, matrices_dir, normalise_cpm=False, strict=Fals
     # Store the CPM matrices if CPM normalisation is requested
     cpm_matrices = {}
 
-    # Build one matrix for each FungiFunk count table type
+    # Build one matrix for each MycoFunk count table type
     for table_key, table_info in COUNT_TABLES.items():
         # Build the raw count matrix for this table type
         matrix = build_count_matrix(samples, table_key, strict=strict)
@@ -1133,10 +1133,10 @@ def summarise_unannotated_hits_for_sample(samples, sample, strict=False):
         return default_values
 
 
-# Summarise one FungiFunk annotation table without loading the full file into memory
+# Summarise one MycoFunk annotation table without loading the full file into memory
 def summarise_annotation_file(path, chunksize=100_000):
     """
-    Summarise one default FungiFunk annotation table.
+    Summarise one default MycoFunk annotation table.
 
     The table is processed in chunks to reduce memory usage.
     """
@@ -1312,19 +1312,19 @@ def build_annotation_summary(samples, strict=False):
         R1_unannotated_hit_count = unannotated_summary["R1_unannotated_hit_count"]
         R2_unannotated_hit_count = unannotated_summary["R2_unannotated_hit_count"]
 
-        # Calculate the total number of DIAMOND hits retained by FungiFunk
+        # Calculate the total number of DIAMOND hits retained by MycoFunk
         total_diamond_hit_count = add_count_values(
             annotated_hit_count,
             unannotated_hit_count,
         )
 
-        # Calculate the number of R1 DIAMOND hits retained by FungiFunk
+        # Calculate the number of R1 DIAMOND hits retained by MycoFunk
         R1_diamond_hit_count = add_count_values(
             R1_annotated_hit_count,
             R1_unannotated_hit_count,
         )
 
-        # Calculate the number of R2 DIAMOND hits retained by FungiFunk
+        # Calculate the number of R2 DIAMOND hits retained by MycoFunk
         R2_diamond_hit_count = add_count_values(
             R2_annotated_hit_count,
             R2_unannotated_hit_count,
@@ -1424,7 +1424,7 @@ def build_annotation_diagnostic_sections(annotation_summary):
             "id": "annotation-diagnostic-total-input-reads",
             "title": "Total input reads per sample",
             "description": (
-                "Shows the total number of input reads provided to FungiFunk for each sample."
+                "Shows the total number of input reads provided to MycoFunk for each sample."
             ),
             "y_col": "total_input_reads",
             "plot_title": "Total input reads per sample",
@@ -1761,10 +1761,10 @@ def select_top_count_matrix(matrix, top_n=50, no_top=False):
     return matrix.loc[selected_ids]
 
 
-# Extract species and accession information from a FungiFunk protein ID
+# Extract species and accession information from a MycoFunk protein ID
 def parse_protein_id_metadata(protein_id):
     """
-    Extract species and accession from a FungiFunk protein ID.
+    Extract species and accession from a MycoFunk protein ID.
     """
 
     # Return missing values if the protein ID is missing
@@ -1774,7 +1774,7 @@ def parse_protein_id_metadata(protein_id):
     # Convert the protein ID to text
     protein_id = str(protein_id)
 
-    # Split the protein ID using the FungiFunk separator
+    # Split the protein ID using the MycoFunk separator
     parts = protein_id.split("|")
 
     # Extract species if the expected protein ID structure is available
@@ -2066,7 +2066,7 @@ def build_associated_context_metadata_tables(
     Build derived context metadata for selected PFAM and eggNOG OG features.
 
     This is not official database metadata. It reports the most frequent protein
-    annotation associated with each selected feature in this FungiFunk run.
+    annotation associated with each selected feature in this MycoFunk run.
 
     The annotation tables are scanned only once to reduce runtime.
     """
@@ -3101,10 +3101,10 @@ def get_annotation_summary_note_html():
     <div class="column-guide">
         <dl>
             <dt><code>sample</code></dt>
-            <dd>Sample name parsed from the FungiFunk output filenames.</dd>
+            <dd>Sample name parsed from the MycoFunk output filenames.</dd>
 
             <dt><code>total_input_reads</code></dt>
-            <dd>Total number of input reads provided to FungiFunk.</dd>
+            <dd>Total number of input reads provided to MycoFunk.</dd>
 
             <dt><code>total_diamond_hit_count</code></dt>
             <dd><code>annotated_hit_count + unannotated_hit_count</code>.</dd>
@@ -3195,7 +3195,7 @@ def get_feature_description_html(table_key, calculate_pfam_eggnog_context=False)
     descriptions = {
         "protein": """
 <p class="feature-description">
-    Protein features are the reference proteins reported by FungiFunk.
+    Protein features are the reference proteins reported by MycoFunk.
     Counts show how many reads were assigned to each protein across samples.
 </p>
 """,
@@ -3305,20 +3305,20 @@ def get_feature_column_guide_html(
             <dd>Protein accession parsed from the protein ID.</dd>
 
             <dt><code>Preferred_name</code></dt>
-            <dd>Short protein name from the FungiFunk annotation output.</dd>
+            <dd>Short protein name from the MycoFunk annotation output.</dd>
 
             <dt><code>Description</code></dt>
-            <dd>Protein description from the FungiFunk annotation output.</dd>
+            <dd>Protein description from the MycoFunk annotation output.</dd>
 """,
         "ko": """
             <dt><code>KEGG_ko</code></dt>
             <dd>Detected KEGG ortholog ID.</dd>
 
             <dt><code>representative_preferred_name</code></dt>
-            <dd>Most frequent protein preferred name associated with this KO in the FungiFunk outputs.</dd>
+            <dd>Most frequent protein preferred name associated with this KO in the MycoFunk outputs.</dd>
 
             <dt><code>representative_description</code></dt>
-            <dd>Most frequent protein description associated with this KO in the FungiFunk outputs.</dd>
+            <dd>Most frequent protein description associated with this KO in the MycoFunk outputs.</dd>
 
             <dt><code>associated_EC</code></dt>
             <dd>EC numbers observed in proteins associated with this KO.</dd>
@@ -3527,12 +3527,12 @@ def sample_summary_html_has_false(sample_summary_html_display):
 # Read report details from the run information log
 def read_report_details_from_log(run_info_log, outdir):
     """
-    Read report details from the FungiFunk_summary run information log.
+    Read report details from the MycoFunk_summary run information log.
     """
 
     # Define the default report details used if the log is missing or incomplete
     details = {
-        "tool": "FungiFunk_summary",
+        "tool": "MycoFunk_summary",
         "version": "not available",
         "run_info_log": "not available",
         "command": "not available",
@@ -3541,7 +3541,7 @@ def read_report_details_from_log(run_info_log, outdir):
 
     # Use the standard log path if no path was provided
     if run_info_log is None:
-        run_info_log = Path(outdir) / "FungiFunk_summary_run_info.log"
+        run_info_log = Path(outdir) / "MycoFunk_summary_run_info.log"
 
     # Convert the log path to a pathlib object
     run_info_log = Path(run_info_log)
@@ -3598,7 +3598,7 @@ def read_report_details_from_log(run_info_log, outdir):
                     version = stripped_line.split(":", 1)[1].strip()
                     details["version"] = version
                     current_section["rows"].append(
-                        ("FungiFunk_summary version", version)
+                        ("MycoFunk_summary version", version)
                     )
                     continue
 
@@ -3749,7 +3749,7 @@ def generate_html_report(
     run_info_log=None,
 ):
     """
-    Generate the FungiFunk_summary HTML report.
+    Generate the MycoFunk_summary HTML report.
     """
     # Import HTML-report dependencies only when the report is generated
     try:
@@ -3769,7 +3769,7 @@ def generate_html_report(
     # Build a compact HTML-only sample summary table
     sample_summary_html_display = build_sample_summary_html_display(sample_summary)
 
-    # Check whether any expected FungiFunk output file was not detected
+    # Check whether any expected MycoFunk output file was not detected
     sample_summary_has_false = sample_summary_html_has_false(sample_summary_html_display)
 
     # Define the sample summary TSV link for the HTML report
@@ -3794,7 +3794,7 @@ def generate_html_report(
     functional_clustermap_note_html = get_functional_clustermap_note_html()
 
     # Get tool name and version for the report introduction
-    report_tool = report_details.get("tool", "FungiFunk_summary")
+    report_tool = report_details.get("tool", "MycoFunk_summary")
     report_version = report_details.get("version", "not available")
 
     # Create a warning note only when at least one expected file was not detected
@@ -3804,8 +3804,8 @@ def generate_html_report(
         sample_summary_footer_html = """
     <div class="warning sample-summary-warning">
         <p>
-            <strong>Warning:</strong> At least one expected FungiFunk output file was not detected.
-            FungiFunk_summary searches recursively inside the input directory for files with the expected suffixes:
+            <strong>Warning:</strong> At least one expected MycoFunk output file was not detected.
+            MycoFunk_summary searches recursively inside the input directory for files with the expected suffixes:
         </p>
 
         <ul>
@@ -3837,7 +3837,7 @@ def generate_html_report(
         {
             "title": "Sample summary",
             "description": (
-                "Quick overview of detected FungiFunk output files per sample. "
+                "Quick overview of detected MycoFunk output files per sample. "
                 "Hover over <strong>True</strong> to see the detected file path. <br> "
                 f"Full paths are also available in <a href='{sample_summary_link}'>summaries/sample_summary.tsv</a>."
             ),
@@ -4035,7 +4035,7 @@ def generate_html_report(
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>FungiFunk summary report</title>
+    <title>MycoFunk summary report</title>
     <script type="text/javascript">{{ plotly_js | safe }}</script>
     <style>
         body {
@@ -4498,11 +4498,11 @@ def generate_html_report(
         {% endif %}
     {% endmacro %}
 
-    <h1>FungiFunk summary report</h1>
+    <h1>MycoFunk summary report</h1>
 
     <p>
         This report was generated by <strong>{{ report_tool }}{% if report_version and report_version != "not available" %} v{{ report_version }}{% endif %}</strong>. <br>
-        It summarises multiple FungiFunk runs by showing sample-level output checks,
+        It summarises multiple MycoFunk runs by showing sample-level output checks,
         annotation summaries, and detected feature summaries. It also compares detected
         functional features across samples, including proteins, KEGG orthologs, eggNOG
         orthologous groups, CAZy families, and PFAM domains. <br>
@@ -4664,13 +4664,13 @@ def generate_html_report(
     <p>
         Functional features include matched proteins, KEGG orthologs, eggNOG orthologous groups,
         CAZy families, and PFAM domains. This section compares their abundance across samples
-        using FungiFunk read-count tables. For each feature type, the report shows selected
+        using MycoFunk read-count tables. For each feature type, the report shows selected
         features as tables, boxplots, and clustered heatmaps based on raw read counts. <br>
         By default, the HTML report displays the top 50 features by total abundance across samples, unless
         <code>--html_top_n</code> or <code>--html_no_top</code> was used. <br>
         If <code>--normalise_cpm</code> was used, CPM-normalised views are also included and selected
         independently by total CPM across samples.<br>
-        Feature metadata shown in the functional tables is generated from FungiFunk outputs.
+        Feature metadata shown in the functional tables is generated from MycoFunk outputs.
     </p>
 
     {% for section in feature_sections %}
@@ -4891,7 +4891,7 @@ def generate_html_report(
     )
 
     # Define the final HTML report output path
-    html_path = outdir / "FungiFunk_summary_report.html"
+    html_path = outdir / "MycoFunk_summary_report.html"
 
     # Write the completed HTML report to disk
     with open(html_path, "w", encoding="utf-8") as handle:
@@ -4902,10 +4902,10 @@ def generate_html_report(
 
 
 
-# Main function that runs the full FungiFunk_summary workflow
+# Main function that runs the full MycoFunk_summary workflow
 def main():
     """
-    Run FungiFunk_summary.
+    Run MycoFunk_summary.
     """
     # Read command-line arguments passed by the Bash wrapper
     args = parse_args()
@@ -4934,13 +4934,13 @@ def main():
         )
 
 
-    print(f"################################ PROCESSING FungiFunk OUTPUT DATA ################################", flush=True)
+    print(f"################################ PROCESSING MycoFunk OUTPUT DATA ################################", flush=True)
 
-##### Checking FungiFunk output data #####
-    # Search for FungiFunk output files inside the input directory
-    log_msg("Checking FungiFunk outputs...", args.timestamps)
+##### Checking MycoFunk output data #####
+    # Search for MycoFunk output files inside the input directory
+    log_msg("Checking MycoFunk outputs...", args.timestamps)
 
-    samples, inventory_df, duplicate_records = discover_fungifunk_outputs(
+    samples, inventory_df, duplicate_records = discover_mycofunk_outputs(
         input_dir,
         strict=args.strict,
     )
@@ -4950,7 +4950,7 @@ def main():
     validate_discovered_outputs(samples, strict=args.strict)
 
 
-    # Write an inventory table with all detected FungiFunk output files
+    # Write an inventory table with all detected MycoFunk output files
     log_msg("Writing detected output files table...", args.timestamps)
 
     inventory_path = summaries_dir / "detected_output_files.tsv"
@@ -5015,7 +5015,7 @@ def main():
 
 ##### Summary of default annotation tables #####
     # Summarise default annotation tables across all samples
-    log_msg("Writing summary of FungiFunk default annotation tables...", args.timestamps)
+    log_msg("Writing summary of MycoFunk default annotation tables...", args.timestamps)
 
     annotation_summary = build_annotation_summary(
         samples=samples,
@@ -5101,7 +5101,7 @@ def main():
     # Print final success message
     log_msg("Done.", args.timestamps)
 
-    print(f"############################ FungiFunk_summary finished successfully #############################", flush=True)
+    print(f"############################ MycoFunk_summary finished successfully #############################", flush=True)
 
 
 if __name__ == "__main__":

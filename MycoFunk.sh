@@ -7,8 +7,8 @@ set -euo pipefail
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 
 # Define the name and version of the tool
-TOOL_NAME="FungiFunk"
-VERSION="0.1.9"
+TOOL_NAME="MycoFunk"
+VERSION="0.2.0"
 
 # Preserve the original command-line arguments exactly as supplied
 ORIGINAL_ARGS=("$@")
@@ -24,16 +24,16 @@ COMMAND_RUN="${COMMAND_RUN% }"
 
 Help() {
     echo "                                                      "
-    echo "   _____                  _ _____            _        "
-    echo "  |  ___|   _ _ __   __ _(_)  ___|   _ _ __ | | __    "
-    echo "  | |_ | | | |  _ \ / _  | | |_ | | | |  _ \| |/ /    "
-    echo "  |  _|| |_| | | | | (_| | |  _|| |_| | | | |   <     "
-    echo "  |_|   \__,_|_| |_|\__, |_|_|   \__,_|_| |_|_|\_\    "
-    echo "                    |___/                             "
+    echo " __  __                 _____            _            "
+    echo "|  \/  |_   _  ___ ___ |  ___|   _ _ __ | | __        "
+    echo "| |\/| | | | |/ __/ _ \| |_ | | | | '_ \| |/ /        "
+    echo "| |  | | |_| | (_| (_) |  _|| |_| | | | |   <         "
+    echo "|_|  |_|\__, |\___\___/|_|   \__,_|_| |_|_|\_\        "
+    echo "        |___/                                         "
     echo "                                                      "
     echo "${TOOL_NAME} v${VERSION}: fungal functional profiling from paired-end reads"
     echo ""
-    echo "FungiFunk maps paired-end reads against a fungal protein reference database with DIAMOND,"
+    echo "MycoFunk maps paired-end reads against a fungal protein reference database with DIAMOND,"
     echo "then transfers functional annotation from EggNOG to generate annotation and"
     echo "read-count summary tables."
     echo ""
@@ -41,7 +41,7 @@ Help() {
     echo "##########################"
     echo "         USAGE            "
     echo "##########################"
-    echo "  FungiFunk.sh -1 <reads1> -2 <reads2> -p <prefix> -o <outdir> [optional arguments]"
+    echo "  MycoFunk.sh -1 <reads1> -2 <reads2> -p <prefix> -o <outdir> [optional arguments]"
     echo ""
     echo ""
     echo "##########################"
@@ -55,9 +55,9 @@ Help() {
     echo ""
     echo "Optional:"
     echo "  -d, --diamond_db <dir>          Path to DIAMOND (.dmnd) fungal database file"
-    echo "                                  [default = script_dir/FungiFunk_diamond_db/fungifunk_diamond_db.dmnd]"
+    echo "                                  [default = script_dir/MycoFunk_diamond_db/mycofunk_diamond_db.dmnd]"
     echo "  -e, --eggnog_db <dir>           Path to EggNOG (.emapper.annotations) fungal database file"
-    echo "                                  [default = script_dir/FungiFunk_eggnog_db/fungifunk_eggnog_db.emapper.annotations]"
+    echo "                                  [default = script_dir/MycoFunk_eggnog_db/mycofunk_eggnog_db.emapper.annotations]"
     echo "  -t, --threads <int>             Number of threads [default = 1]"
     echo "  --write_full_annotation         Write the full extended annotation table [default = disabled]"
     echo "  --skip_unannotated_hits         Do not write DIAMOND hits without EggNOG annotation"
@@ -74,8 +74,8 @@ Help() {
     echo "  --id <value>                    Minimum sequence identity percentage to report an alignment in DIAMOND [deafult = 88]"
     echo "  --query-cover <value>           Minimum query cover percentage to report an alignment in DIAMOND"
     echo "  --top <value>                   Report hits whose scores are within <value>% of the best hit for each query"
-    echo "  --timestamps                    Add timestamps to FungiFunk progress messages"
-    echo "  --version                       Show FungiFunk version and exit"
+    echo "  --timestamps                    Add timestamps to MycoFunk progress messages"
+    echo "  --version                       Show MycoFunk version and exit"
     echo "  -h, --help                      Show this help message and exit"
     echo ""
     echo ""
@@ -92,7 +92,7 @@ Help() {
     echo "  --query-cover <value>           Minimum query cover percentage to report an alignment"
     echo "  --top <value>                   Report hits whose scores are within <value>% of the best hit for each query"
     echo ""
-    echo "If these options are not provided, FungiFunk does not add them to the DIAMOND command."
+    echo "If these options are not provided, MycoFunk does not add them to the DIAMOND command."
     echo "This allows DIAMOND to use its own default behaviour for these parameters."
     echo ""
     echo ""
@@ -100,7 +100,7 @@ Help() {
     echo "         OUTPUTS          "
     echo "##########################"
     echo "Default:"
-    echo "  FungiFunk_<prefix>_run_info.log             Run metadata log with version, inputs, databases, and parameters"
+    echo "  MycoFunk_<prefix>_run_info.log             Run metadata log with version, inputs, databases, and parameters"
     echo "  <prefix>_input_read_counts.tsv              Input read counts for R1 and R2"
     echo ""
     echo "  diamond/"
@@ -146,8 +146,8 @@ reads1=""
 reads2=""
 prefix=""
 outdir=""
-diamond_db="${script_dir}/FungiFunk_diamond_db/fungifunk_diamond_db.dmnd"
-eggnog_db="${script_dir}/FungiFunk_eggnog_db/fungifunk_eggnog_db.emapper.annotations"
+diamond_db="${script_dir}/MycoFunk_diamond_db/mycofunk_diamond_db.dmnd"
+eggnog_db="${script_dir}/MycoFunk_eggnog_db/mycofunk_eggnog_db.emapper.annotations"
 threads="1"
 write_full_annotation="false"
 skip_unannotated_hits="false"
@@ -384,13 +384,13 @@ if [[ -n "$top" ]] && awk "BEGIN {exit !($top < 0 || $top > 100)}"; then
     exit 1
 fi
 
-if [[ ! -f "$script_dir/FungiFunk_count_input_reads.py" ]]; then
-    echo "ERROR: Input read counting script not found: $script_dir/FungiFunk_count_input_reads.py" >&2
+if [[ ! -f "$script_dir/MycoFunk_count_input_reads.py" ]]; then
+    echo "ERROR: Input read counting script not found: $script_dir/MycoFunk_count_input_reads.py" >&2
     exit 1
 fi
 
-if [[ ! -f "$script_dir/FungiFunk_annotate.py" ]]; then
-    echo "ERROR: Annotation script not found: $script_dir/FungiFunk_annotate.py" >&2
+if [[ ! -f "$script_dir/MycoFunk_annotate.py" ]]; then
+    echo "ERROR: Annotation script not found: $script_dir/MycoFunk_annotate.py" >&2
     exit 1
 fi
 
@@ -405,7 +405,7 @@ mkdir -p "$outdir/diamond"
 mkdir -p "$outdir/annotation"
 
 # Define run metadata log file
-run_info_log="${outdir}/FungiFunk_${prefix}_run_info.log"
+run_info_log="${outdir}/MycoFunk_${prefix}_run_info.log"
 
 # Write run metadata to log file
 cat > "$run_info_log" <<EOF
@@ -520,7 +520,7 @@ echo "####################################### CHECKING INPUT FILES #############
 log_msg "Counting input reads..."
 log_msg "Writing input read counts table.."
 
-python "$script_dir/FungiFunk_count_input_reads.py" \
+python "$script_dir/MycoFunk_count_input_reads.py" \
     --reads1 "$reads1" \
     --reads2 "$reads2" \
     --prefix "$prefix" \
@@ -649,7 +649,7 @@ fi
 
 
 # Pass both DIAMOND outputs to the annotation python script to assign functions and summarize pathways
-python "$script_dir/FungiFunk_annotate.py" \
+python "$script_dir/MycoFunk_annotate.py" \
     --r1 "$outdir/diamond/${prefix}_R1.diamond.out" \
     --r2 "$outdir/diamond/${prefix}_R2.diamond.out" \
     --eggnog_db "$eggnog_db" \

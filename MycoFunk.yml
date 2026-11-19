@@ -1,4 +1,4 @@
-name: FungiFunk
+name: MycoFunk
 
 channels:
   - conda-forge

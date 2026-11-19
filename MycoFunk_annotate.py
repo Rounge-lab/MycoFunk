@@ -148,7 +148,7 @@ def read_diamond_tab(path: str | Path) -> pd.DataFrame:
 
     Column meanings:
     1. query_id   = read ID
-    2. protein_id = matched protein ID from the FungiFunk reference database
+    2. protein_id = matched protein ID from the MycoFunk reference database
     3. pident     = percent identity
     4. aln_length = alignment length
     5. mismatch   = number of mismatches
